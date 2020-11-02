@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Line Chart with live update</title>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/Chart.min.js"></script>
+</head>
+
+<body>
+
+<canvas id="canvas"></canvas>
+
+<script>
+    var config = {
+        type: 'line',
+        data: {
+            labels: ["January", "February", "March", "April", "May", "June", "July"],
+            datasets: [{
+                id: 'Dataset_1',
+                label: 'Dataset 1',
+                backgroundColor: 'rgb(255, 99, 132)',
+                data: [1, 2, 3, 4, 5, 6, 7]
+            }, {
+                id: 'Dataset_2',
+                label: 'Dataset 2',
+                backgroundColor: 'rgb(255, 159, 64)',
+                data: [1, 2, 3, 4, 5, 6, 7]
+            }, {
+                id: 'Dataset_3',
+                label: 'Dataset 3',
+                backgroundColor: 'rgb(255, 205, 86)',
+                data: [1, 2, 3, 4, 5, 6, 7]
+            }]
+        },
+        options: {
+            title: {
+                display: true,
+                text: "Line Chart with live update"
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false
+            },
+            responsive: true,
+            scales: {
+                xAxes: [{
+                    stacked: true
+                }],
+                yAxes: [{
+                    stacked: true
+                }]
+            }
+        }
+    };
+    window.onload = function () {
+        var ctx = document.getElementById("canvas").getContext("2d");
+        window.MyChar = new Chart(ctx, config);
+        dataUpdater();
+    };
+
+    function dataUpdater() {
+        $.ajax({
+            type: "get",
+            url: 'data.php',
+            global: false,
+            cache: false
+        }).done(function (newData) {
+            config.data.datasets.forEach(function (dataset) {
+                console.log(newData);
+                dataset.data = newData[dataset.id];
+            });
+            window.MyChar.update();
+        });
+
+        console.info('Updating canvas is Done');
+        setTimeout(function () {
+            dataUpdater();
+        }, 5000);
+    }
+</script>
+</body>
+
+</html>
